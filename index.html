@@ -14,16 +14,148 @@
     holiday location
     holiday comments -->
     <!-- Controls start here -->
-
     <!-- Controls end here -->
+    <div id="holiday_forms" style="margin-bottom: 10px">
+      <div class="row" style="display: flex; align-items: center">
+        <input type="date" name="holiday_date" id="holiday_date" />
+        <input
+          type="text"
+          name="holiday_name"
+          id="holiday_name"
+          placeholder="Holiday Name"
+        />
+        <select name="holiday_type" id="holiday_type">
+          <option value="NAT">National Holiday</option>
+          <option value="ST">State Holiday</option>
+        </select>
+        <select name="holiday_location" id="holiday_location">
+          <option value="PHIL">Philippines</option>
+          <option value="BS">Busan</option>
+          <option value="VT">Vietnam</option>
+        </select>
+        <textarea
+          name="holiday_comments"
+          id="holiday_comments"
+          cols="30"
+        ></textarea>
+        <input type="button" value="Add" />
+        <input type="button" value="Delete" />
+      </div>
+    </div>
+    <div>
+      <button onclick="paste()">Paste</button>
+    </div>
     <script>
       $(() => {
         console.log("jquery working");
       });
 
+      const populate = (data) => {
+        let content = ``;
+
+        // Fetch Holiday Types
+        const holidayTypes = [
+          {
+            id: "XYZ",
+            name: "National Holiday",
+            code: "NH",
+          },
+          {
+            id: "ABC",
+            name: "State Holiday",
+            code: "ST",
+          },
+        ];
+
+        // Fetch Holiday Locations
+        const holidayLocations = [
+          {
+            id: "ABC",
+            name: "Philippines",
+            code: "PHIL",
+          },
+          {
+            id: "DEF",
+            name: "Busan",
+            code: "BS",
+          },
+          {
+            id: "GHI",
+            name: "Vietnam",
+            code: "VT",
+          },
+        ];
+
+        data.forEach((holiday) => {
+          // Holiday Types
+          let holidayTypeContent = ``;
+          holidayTypes.forEach((holidayType) => {
+            const { code, id, name } = holidayType;
+            if (code == holiday.holiday_type)
+              holidayTypeContent += `<option value="${id}" selected>${name}</option>`;
+            else holidayTypeContent += `<option value="${id}">${name}</option>`;
+          });
+
+          // Holiday Locations
+          let holidayLocationsContent = ``;
+          holidayLocations.forEach((holidayLocation) => {
+            const { code, id, name } = holidayLocation;
+            if (code == holiday.holiday_location)
+              holidayLocationsContent += `<option value="${id}" selected>${name}</option>`;
+            else
+              holidayLocationsContent += `<option value="${id}">${name}</option>`;
+          });
+
+          content += `
+          <div class="row" style="display: flex; align-items: center">
+            <input type="date" name="holiday_date" id="holiday_date" value="${holiday.holiday_date}"/>
+            <input
+              type="text"
+              name="holiday_name"
+              id="holiday_name"
+              placeholder="Holiday Name"
+              value="${holiday.holiday_name}"
+            />
+            <select name="holiday_type" id="holiday_type" value="${holiday.holiday_type}">
+              ${holidayTypeContent}
+            </select>
+            <select name="holiday_location" id="holiday_location" value="${holiday.holiday_location}">
+              ${holidayLocationsContent}
+            </select>
+            <textarea
+              name="holiday_comments"
+              id="holiday_comments"
+              cols="30"
+            >${holiday.comments}</textarea>
+            <input type="button" value="Add" />
+            <input type="button" value="Delete" />
+          </div>
+          `;
+        });
+        $("#holiday_forms").html(content);
+      };
+      const paste = async function () {
+        const data = await navigator.clipboard.readText();
+        const rows = data.split("\n");
+
+        const holidays = [];
+        if (rows.length > 1)
+          rows.forEach((row) => {
+            const fields = row.split("\t");
+            if (fields.length > 1)
+              holidays.push({
+                holiday_date: fields[0],
+                holiday_name: fields[1],
+                holiday_type: fields[2],
+                holiday_location: fields[3],
+                comments: fields[4],
+              });
+          });
+        populate(holidays);
+      };
       // paste events
       window.addEventListener("paste", (event) => {
-        console.log("paste event");
+        paste();
       });
     </script>
   </body>
